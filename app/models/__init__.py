@@ -3,5 +3,6 @@ from .project import Project
 from .service import Service
 from .experience import Experience
 from .contact import Contact
+from .user import User
 
-__all__ = ['BlogPost', 'Project', 'Service', 'Experience', 'Contact']
+__all__ = ['BlogPost', 'Project', 'Service', 'Experience', 'Contact', 'User']
