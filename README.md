@@ -1,20 +1,28 @@
-# portfolio-backend
+# Portfolio Backend
 
-A built  Flask app for the portfolio backend. Features include a blog system, project showcase, and contact form functionality.
+A Flask-based backend application for a portfolio website. Features include a blog system, project showcase, services, experience tracking, and contact form functionality.
 
 ## Tech Stack
--   Flask
--   SQLAlchemy
+
+-   Flask 2.0.1
+-   SQLAlchemy 1.4.23
 -   PostgreSQL
--   Flask-JWT-Extended
--   Flask-Cors
+-   Flask-JWT-Extended 4.3.1
+-   Flask-CORS 3.0.10
 
+## Prerequisites
 
-1. Create a new directory for the backend:
+-   Python 3.10+
+-   PostgreSQL
+-   pip
+
+## Installation & Setup
+
+1. Clone the repository:
 
 ```bash
-mkdir backend
-cd backend
+git clone <repository-url>
+cd portfolio-backend
 ```
 
 2. Create and activate a virtual environment:
@@ -24,10 +32,17 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install required packages:
+3. Install required packages with specific versions:
 
 ```bash
-pip install flask flask-sqlalchemy flask-cors flask-jwt-extended python-dotenv psycopg2-binary
+pip install flask==2.0.1 \
+            werkzeug==2.0.3 \
+            SQLAlchemy==1.4.23 \
+            flask-sqlalchemy==2.5.1 \
+            flask-cors==3.0.10 \
+            flask-jwt-extended==4.3.1 \
+            python-dotenv==0.19.0 \
+            psycopg2-binary==2.9.1
 ```
 
 4. Create a `.env` file in the backend directory:
@@ -35,88 +50,40 @@ pip install flask flask-sqlalchemy flask-cors flask-jwt-extended python-dotenv p
 ```env
 DATABASE_URL=postgresql://username:password@localhost:5432/portfolio
 JWT_SECRET_KEY=your-secret-key
+CORS_ORIGINS=http://localhost:3000
 ```
 
-5. Create the following directory structure:
-
-```
-backend/
-├── app/
-│   ├── __init__.py
-│   ├── models/
-│   ├── routes/
-│   └── utils/
-├── config.py
-├── requirements.txt
-└── run.py
-```
-
-6. Basic Flask setup (`run.py`):
-
-```python
-from app import create_app
-
-app = create_app()
-
-if __name__ == '__main__':
-    app.run(debug=True)
-```
-
-7. Initialize Flask app (`app/__init__.py`):
-
-```python
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-from config import Config
-
-db = SQLAlchemy()
-
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
-
-    CORS(app)
-    db.init_app(app)
-
-    from app.routes import blog, projects, contact
-    app.register_blueprint(blog.bp)
-    app.register_blueprint(projects.bp)
-    app.register_blueprint(contact.bp)
-
-    return app
-```
-
-8. Configuration (`config.py`):
-
-```python
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-class Config:
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
-```
-
-9. Run the backend server:
+5. Initialize the database:
 
 ```bash
-python run.py
+python create_tables.py
 ```
 
 ## Project Structure
 
 ```
-portfolio/
-├──             # Flask backend
-    ├── app/
-    │   ├── models/      # Database models
-    │   ├── routes/      # API endpoints
-    │   └── utils/       # Helper functions
-    └── config.py        # Backend configuration
+portfolio-backend/
+├── app/
+│   ├── __init__.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── blog.py
+│   │   ├── project.py
+│   │   ├── service.py
+│   │   ├── experience.py
+│   │   └── contact.py
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── blog.py
+│   │   ├── projects.py
+│   │   ├── services.py
+│   │   ├── experience.py
+│   │   └── contact.py
+│   └── utils/
+├── config.py
+├── create_tables.py
+├── requirements.txt
+└── run.py
 ```
 
 ## API Endpoints
@@ -137,42 +104,87 @@ portfolio/
 -   `PUT /api/projects/<slug>` - Update project (protected)
 -   `DELETE /api/projects/<slug>` - Delete project (protected)
 
+### Services
+
+-   `GET /api/services` - Get all services
+-   `GET /api/services/<slug>` - Get single service
+-   `POST /api/services` - Create new service (protected)
+-   `PUT /api/services/<slug>` - Update service (protected)
+-   `DELETE /api/services/<slug>` - Delete service (protected)
+
+### Experience
+
+-   `GET /api/experience` - Get all experiences
+-   `POST /api/experience` - Add new experience (protected)
+-   `PUT /api/experience/<id>` - Update experience (protected)
+-   `DELETE /api/experience/<id>` - Delete experience (protected)
+
 ### Contact
 
 -   `POST /api/contact` - Submit contact form
 
+## Authentication
+
+Protected routes require a JWT token in the Authorization header:
+
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+## Development
+
+Run the development server:
+
+```bash
+python run.py
+```
+
+The server will start at `http://localhost:5000`
+
 ## Deployment
-
-### Frontend (Vercel)
-
-The easiest way to deploy the Next.js frontend is to use the [Vercel Platform](https://vercel.com/new).
-
-1. Push your code to GitHub
-2. Import your repository to Vercel
-3. Configure environment variables
-4. Deploy
 
 ### Backend (Railway/Heroku)
 
 1. Create a new project on Railway or Heroku
-2. Configure environment variables
+2. Configure environment variables:
+    - `DATABASE_URL`
+    - `JWT_SECRET_KEY`
+    - `CORS_ORIGINS`
 3. Connect your GitHub repository
 4. Deploy the backend
 
-## Environment Variables
+### Environment Variables
 
-### Frontend (.env.local)
+Required environment variables:
 
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
+# Database configuration
+DATABASE_URL=postgresql://username:password@localhost:5432/portfolio
+
+# Security
+JWT_SECRET_KEY=your-secret-key-here
+
+# CORS configuration
+CORS_ORIGINS=http://localhost:3000,https://your-production-frontend.com
 ```
 
-### Backend (.env)
+## Common Issues & Troubleshooting
 
-```env
-DATABASE_URL=postgresql://username:password@localhost:5432/portfolio
-JWT_SECRET_KEY=your-secret-key
-CORS_ORIGIN=http://localhost:3000
+### Database Connection
+
+-   Ensure PostgreSQL is running
+-   Verify database credentials in `.env`
+-   Check database exists: `createdb portfolio`
+
+### Version Conflicts
+
+If you encounter dependency conflicts, install these specific versions:
+
+```bash
+pip install werkzeug==2.0.3
+pip install flask==2.0.1
+pip install SQLAlchemy==1.4.23
+pip install Flask-SQLAlchemy==2.5.1
 ```
 
 ## Contributing
@@ -186,3 +198,8 @@ CORS_ORIGIN=http://localhost:3000
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+
+Your Name - your.email@example.com
+Project Link: [https://github.com/yourusername/portfolio-backend](https://github.com/yourusername/portfolio-backend)
