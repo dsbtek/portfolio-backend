@@ -1,0 +1,262 @@
+{
+    "info": {
+        "name": "Portfolio API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/register",
+                            "path": ["api", "auth", "register"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"johndoe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"securepassword123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/login",
+                            "path": ["api", "auth", "login"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"johndoe\",\n    \"password\": \"securepassword123\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Blog",
+            "item": [
+                {
+                    "name": "Get All Blog Posts",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/blog",
+                            "path": ["api", "blog"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Single Blog Post",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/blog/sample-blog-post",
+                            "path": ["api", "blog", "sample-blog-post"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Blog Post",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/blog",
+                            "path": ["api", "blog"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"New Blog Post\",\n    \"excerpt\": \"Short preview\",\n    \"content\": \"Full content\",\n    \"author\": \"John Doe\",\n    \"imageUrl\": \"https://example.com/image.jpg\",\n    \"tags\": [\"tech\", \"programming\"],\n    \"slug\": \"new-blog-post\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Projects",
+            "item": [
+                {
+                    "name": "Get All Projects",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects",
+                            "path": ["api", "projects"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Single Project",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects/project-name",
+                            "path": ["api", "projects", "project-name"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Project",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/projects",
+                            "path": ["api", "projects"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"New Project\",\n    \"description\": \"Project description\",\n    \"technologies\": [\"React\", \"Python\", \"PostgreSQL\"],\n    \"imageUrl\": \"https://example.com/project.jpg\",\n    \"githubUrl\": \"https://github.com/username/project\",\n    \"liveUrl\": \"https://project-demo.com\",\n    \"slug\": \"new-project\",\n    \"details\": \"Detailed project information\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Services",
+            "item": [
+                {
+                    "name": "Get All Services",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/services",
+                            "path": ["api", "services"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Single Service",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/services/service-name",
+                            "path": ["api", "services", "service-name"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Experience",
+            "item": [
+                {
+                    "name": "Get All Experiences",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/experience",
+                            "path": ["api", "experience"]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Experience",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{jwt_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/experience",
+                            "path": ["api", "experience"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"company\": \"Company Name\",\n    \"position\": \"Job Title\",\n    \"period\": \"Jan 2020 - Present\",\n    \"description\": \"Job description\",\n    \"technologies\": [\"React\", \"Python\", \"AWS\"]\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Contact",
+            "item": [
+                {
+                    "name": "Get Contact Information",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/contact",
+                            "path": ["api", "contact"]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit Contact Form",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/contact",
+                            "path": ["api", "contact"]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"message\": \"Hello, I'd like to discuss a project.\"\n}"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:5000",
+            "type": "string"
+        },
+        {
+            "key": "jwt_token",
+            "value": "your-jwt-token-here",
+            "type": "string"
+        }
+    ]
+}
