@@ -1,55 +1,42 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required
+from flask_restx import Resource, fields
 from app.models import BlogPost
 from app import db
+from datetime import datetime
+from .docs import blog_ns as ns
 
+# Blueprint for route registration
 bp = Blueprint('blog', __name__, url_prefix='/api/blog')
 
-
-@bp.route('/', methods=['GET'])
-def get_posts():
-    posts = BlogPost.query.all()
-    return jsonify([{
-        'title': post.title,
-        'excerpt': post.excerpt,
-        'content': post.content,
-        'date': post.date.isoformat(),
-        'author': post.author,
-        'imageUrl': post.image_url,
-        'tags': post.tags,
-        'slug': post.slug,
-        'readingTime': post.reading_time
-    } for post in posts])
+# Models for Swagger documentation
+blog_model = ns.model('Blog', {
+    'title': fields.String(required=True, description='Blog post title'),
+    'excerpt': fields.String(required=True, description='Blog post excerpt'),
+    'content': fields.String(required=True, description='Blog post content'),
+    'author': fields.String(description='Blog post author'),
+    'imageUrl': fields.String(description='Blog post image URL'),
+    'tags': fields.List(fields.String, description='Blog post tags'),
+    'slug': fields.String(required=True, description='Blog post slug'),
+    'readingTime': fields.Integer(description='Estimated reading time in minutes')
+})
 
 
-@bp.route('/', methods=['POST'])
-@jwt_required()
-def create_post():
-    data = request.get_json()
-
-    # Extract reading time value and convert to integer
-    reading_time = data.get('readingTime')
-    if isinstance(reading_time, str):
-        # Extract number from string like "5 min"
-        reading_time = int(reading_time.split()[0])
-
-    # Map camelCase to snake_case
-    blog_data = {
-        'title': data.get('title'),
-        'excerpt': data.get('excerpt'),
-        'content': data.get('content'),
-        'author': data.get('author'),
-        'image_url': data.get('imageUrl'),
-        'tags': data.get('tags'),
-        'slug': data.get('slug'),
-        'reading_time': reading_time  # Now it's an integer
-    }
-
-    # Remove None values
-    blog_data = {k: v for k, v in blog_data.items() if v is not None}
-
-    post = BlogPost(**blog_data)
-    db.session.add(post)
-    db.session.commit()
-
-    return jsonify({'message': 'Post created successfully'}), 201
+@ns.route('/')
+class BlogList(Resource):
+    @ns.doc('list_posts')
+    @ns.response(200, 'Success', [blog_model])
+    def get(self):
+        """List all blog posts"""
+        posts = BlogPost.query.all()
+        return [{
+            'title': post.title,
+            'excerpt': post.excerpt,
+            'content': post.content,
+            'date': post.date.isoformat() if post.date else None,
+            'author': post.author,
+            'imageUrl': post.image_url,
+            'tags': post.tags,
+            'slug': post.slug,
+            'readingTime': post.reading_time
+        } for post in posts]

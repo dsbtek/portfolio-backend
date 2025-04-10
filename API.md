@@ -4,10 +4,18 @@ Base URL: `http://localhost:5000` (Development) or `https://your-api-url.com` (P
 
 ## Authentication
 
-Protected endpoints require JWT authentication via Bearer token in the Authorization header:
+Protected endpoints require JWT authentication via Bearer token in the Authorization header. The token must be prefixed with "Bearer":
 
 ```http
-Authorization: Bearer <your-jwt-token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+Example curl command:
+
+```bash
+curl -X GET \
+  'http://localhost:5000/api/projects' \
+  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
 ```
 
 #### Register New User
@@ -59,6 +67,28 @@ Response (200 OK):
         "username": "johndoe",
         "email": "john@example.com"
     }
+}
+```
+
+#### Get Current User Profile
+
+```http
+GET /api/auth/me
+```
+
+Headers:
+
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+Response (200 OK):
+
+```json
+{
+    "id": 1,
+    "username": "johndoe",
+    "email": "john@example.com"
 }
 ```
 
@@ -301,22 +331,6 @@ Request Body:
 
 ### Contact
 
-#### Submit Contact Form
-
-```http
-POST /api/contact
-```
-
-Request Body:
-
-```json
-{
-    "name": "John Doe",
-    "email": "john@example.com",
-    "message": "Hello, I'd like to discuss a project."
-}
-```
-
 #### Get Contact Information
 
 ```http
@@ -331,6 +345,62 @@ Response:
     "linkedin": "https://linkedin.com/in/username",
     "github": "https://github.com/username",
     "twitter": "https://twitter.com/username"
+}
+```
+
+#### Update Contact Information (Protected)
+
+```http
+POST /api/contact
+```
+
+Headers:
+
+```http
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+Content-Type: application/json
+```
+
+Request Body:
+
+```json
+{
+    "email": "contact@example.com",
+    "linkedin": "https://linkedin.com/in/username",
+    "github": "https://github.com/username",
+    "twitter": "https://twitter.com/username"
+}
+```
+
+Response (201 Created):
+
+```json
+{
+    "message": "Contact information updated successfully"
+}
+```
+
+#### Submit Contact Form Message
+
+```http
+POST /api/contact/message
+```
+
+Request Body:
+
+```json
+{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "message": "Hello, I'd like to discuss a project."
+}
+```
+
+Response (201 Created):
+
+```json
+{
+    "message": "Message sent successfully"
 }
 ```
 
@@ -394,16 +464,25 @@ Response:
 
 ## Testing
 
-Use the following curl commands for testing:
+Example curl commands for testing:
 
 ```bash
-# Get all blog posts
-curl http://localhost:5000/api/blog
+# Login and get token
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"johndoe","password":"securepassword123"}' \
+  http://localhost:5000/api/auth/login
 
-# Create a new project (protected)
+# Use token in protected endpoint
 curl -X POST \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"title":"New Project","description":"Description"}' \
-  http://localhost:5000/api/projects
+  -d '{"email":"contact@example.com"}' \
+  http://localhost:5000/api/contact
+
+# Submit contact form
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"name":"John","email":"john@example.com","message":"Hello"}' \
+  http://localhost:5000/api/contact/message
 ```

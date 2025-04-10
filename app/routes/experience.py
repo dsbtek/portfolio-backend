@@ -1,39 +1,34 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required
+from flask_restx import Resource, fields
 from app.models import Experience
 from app import db
+from .docs import experience_ns as ns
 
+# Blueprint for route registration
 bp = Blueprint('experience', __name__, url_prefix='/api/experience')
 
-
-@bp.route('/', methods=['GET'])
-def get_experience():
-    experiences = Experience.query.all()
-    return jsonify([{
-        'company': exp.company,
-        'position': exp.position,
-        'period': exp.period,
-        'description': exp.description,
-        'technologies': exp.technologies
-    } for exp in experiences])
+# Models for Swagger documentation
+experience_model = ns.model('Experience', {
+    'company': fields.String(required=True, description='Company name'),
+    'position': fields.String(required=True, description='Job position'),
+    'period': fields.String(required=True, description='Employment period'),
+    'description': fields.String(required=True, description='Job description'),
+    'technologies': fields.List(fields.String, description='Technologies used')
+})
 
 
-@bp.route('/', methods=['POST'])
-@jwt_required()
-def create_experience():
-    data = request.get_json()
-    experience_data = {
-        'company': data.get('company'),
-        'position': data.get('position'),
-        'period': data.get('period'),
-        'description': data.get('description'),
-        'technologies': data.get('technologies')
-    }
-    experience_data = {k: v for k,
-                       v in experience_data.items() if v is not None}
-
-    experience = Experience(**experience_data)
-    db.session.add(experience)
-    db.session.commit()
-
-    return jsonify({'message': 'Experience created successfully'}), 201
+@ns.route('/')
+class ExperienceList(Resource):
+    @ns.doc('list_experiences')
+    @ns.response(200, 'Success', [experience_model])
+    def get(self):
+        """List all experience entries"""
+        experiences = Experience.query.all()
+        return [{
+            'company': exp.company,
+            'position': exp.position,
+            'period': exp.period,
+            'description': exp.description,
+            'technologies': exp.technologies
+        } for exp in experiences]
