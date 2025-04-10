@@ -32,6 +32,7 @@ experience_ns = api.namespace(
     'experience', description='Experience operations')
 blog_ns = api.namespace('blog', description='Blog operations')
 contact_ns = api.namespace('contact', description='Contact operations')
+about_ns = api.namespace('about', description='About me operations')
 
 
 def register_namespaces():

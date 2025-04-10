@@ -18,7 +18,7 @@ def create_app():
     jwt.init_app(app)
 
     # Register blueprints
-    from app.routes import docs, auth, projects, blog, services, contact, experience
+    from app.routes import docs, auth, projects, blog, services, contact, experience, about
     app.register_blueprint(docs.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(projects.bp)
@@ -26,6 +26,7 @@ def create_app():
     app.register_blueprint(services.bp)
     app.register_blueprint(contact.bp)
     app.register_blueprint(experience.bp)
+    app.register_blueprint(about.bp)
 
     # Register all API namespaces
     docs.register_namespaces()
