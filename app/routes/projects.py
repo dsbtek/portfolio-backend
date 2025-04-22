@@ -68,6 +68,48 @@ class ProjectList(Resource):
             db.session.rollback()
             return {'error': str(e)}, 400
 
+    @ns.doc('update_project', security='Bearer')
+    @ns.expect(project_model)
+    @ns.response(200, 'Project updated')
+    @ns.response(404, 'Project not found')
+    @jwt_required()
+    def put(self, id):
+        """Update a Project"""
+        project = Project.query.filter_by(id=id).first_or_404()
+        data = request.get_json()
+
+        try:
+            project.title = data.get('title', project.title)
+            project.description = data.get('description', project.description)
+            project.technologies = data.get(
+                'technologies', project.technologies)
+            project.image_url = data.get('image_url', project.image_url)
+            project.github_url = data.get('github_url', project.github_url)
+            project.live_url = data.get('live_url', project.live_url)
+            project.slug = data.get('slug', project.slug)
+            project.details = data.get('details', project.details)
+
+            db.session.commit()
+            return {'message': 'Project updated successfully'}
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 400
+
+    @ns.doc('delete_project', security='Bearer')
+    @ns.response(200, 'Project deleted')
+    @ns.response(404, 'Contact not found')
+    @jwt_required()
+    def delete(self, id):
+        """Delete a Project"""
+        project = Project.query.filter_by(id=id).first_or_404()
+        try:
+            db.session.delete(project)
+            db.session.commit()
+            return {'message': 'Project deleted successfully'}
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 400
+
 
 @ns.route('/<slug>')
 @ns.param('slug', 'The project slug')

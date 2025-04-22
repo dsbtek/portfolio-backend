@@ -136,7 +136,7 @@ Authorization: Bearer <your-jwt-token>
 Run the development server:
 
 ```bash
-python run.py
+python3 run.py
 ```
 
 The server will start at `http://localhost:5000`

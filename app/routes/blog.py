@@ -28,28 +28,58 @@ class BlogList(Resource):
     @ns.response(200, 'Success', [blog_model])
     def get(self):
         """List all blog posts"""
-        posts = BlogPost.query.all()
+        blogs = BlogPost.query.all()
         return [{
-            'title': post.title,
-            'excerpt': post.excerpt,
-            'content': post.content,
-            'date': post.date.isoformat() if post.date else None,
-            'author': post.author,
-            'imageUrl': post.image_url,
-            'tags': post.tags,
-            'slug': post.slug,
-            'readingTime': post.reading_time
-        } for post in posts]
+            'title': blog.title,
+            'excerpt': blog.excerpt,
+            'content': blog.content,
+            'date': blog.date.isoformat() if blog.date else None,
+            'author': blog.author,
+            'imageUrl': blog.image_url,
+            'tags': blog.tags,
+            'slug': blog.slug,
+            'readingTime': blog.reading_time
+        } for blog in blogs]
+
+    @ns.doc('create_blog', security='Bearer')
+    @ns.expect(blog_model)
+    @ns.response(201, 'Block created')
+    @ns.response(401, 'Unauthorized')
+    @jwt_required()
+    def post(self):
+        """Create a new blog"""
+        data = request.get_json()
+
+        blog_data = {
+            'title': data.get('title'),
+            'excerpt': data.get('excerpt'),
+            'content': data.get('content'),
+            'image_url': data.get('imageUrl'),
+            'author': data.get('author'),
+            'tags': data.get('tags'),
+            'slug': data.get('slug'),
+            'readingTime': data.reading_time
+
+        }
+
+        try:
+            blog = BlogPost(**blog_data)
+            db.session.add(blog)
+            db.session.commit()
+            return {'message': 'Blog created successfully'}, 201
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 400
 
 
 @ns.route('/<slug>')
 @ns.param('slug', 'The blog slug')
 class ProjectResource(Resource):
-    @ns.doc('get_project')
+    @ns.doc('get_blog')
     @ns.response(200, 'Success', blog_model)
-    @ns.response(404, 'Project not found')
+    @ns.response(404, 'Blog not found')
     def get(self, slug):
-        """Get a project by slug"""
+        """Get a blog by slug"""
         blog = BlogPost.query.filter_by(slug=slug).first_or_404()
         return {
             'title': blog.title,

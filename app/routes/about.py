@@ -20,6 +20,7 @@ about_model = ns.model('AboutMe', {
     'location': fields.String(description='Current location')
 })
 
+
 @ns.route('/')
 class AboutMeResource(Resource):
     @ns.doc('get_about_me')
@@ -30,7 +31,7 @@ class AboutMeResource(Resource):
         about = AboutMe.query.first()
         if not about:
             return {'message': 'No information available'}, 404
-            
+
         return {
             'name': about.name,
             'title': about.title,
@@ -58,12 +59,13 @@ class AboutMeResource(Resource):
                 about.name = data.get('name', about.name)
                 about.title = data.get('title', about.title)
                 about.description = data.get('description', about.description)
-                about.profile_image = data.get('profile_image', about.profile_image)
+                about.profile_image = data.get(
+                    'profile_image', about.profile_image)
                 about.resume_url = data.get('resume_url', about.resume_url)
                 about.skills = data.get('skills', about.skills)
                 about.interests = data.get('interests', about.interests)
                 about.location = data.get('location', about.location)
-                
+
                 db.session.commit()
                 return {'message': 'Information updated successfully'}
             except Exception as e:
@@ -88,3 +90,43 @@ class AboutMeResource(Resource):
             except Exception as e:
                 db.session.rollback()
                 return {'error': str(e)}, 400
+
+    @ns.doc('update_about_me', security='Bearer')
+    @ns.expect(about_model)
+    @ns.response(200, 'Service updated')
+    @ns.response(404, 'Service not found')
+    @jwt_required()
+    def put(self, slug):
+        """Update a about me"""
+        about_me = AboutMe.query.filter_by(slug=slug).first_or_404()
+        data = request.get_json()
+
+        try:
+            about_me.title = data.get('title', about_me.title)
+            about_me.description = data.get(
+                'description', about_me.description)
+            about_me.icon = data.get('icon', about_me.icon)
+            about_me.capabilities = data.get(
+                'capabilities', about_me.capabilities)
+            about_me.slug = data.get('slug', about_me.slug)
+
+            db.session.commit()
+            return {'message': 'About Me updated successfully'}
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 400
+
+    @ns.doc('delete_about_me', security='Bearer')
+    @ns.response(200, 'About Me deleted')
+    @ns.response(404, 'About Me not found')
+    @jwt_required()
+    def delete(self, slug):
+        """Delete a about me"""
+        about_me = AboutMe.query.filter_by(slug=slug).first_or_404()
+        try:
+            db.session.delete(about_me)
+            db.session.commit()
+            return {'message': 'About Me deleted successfully'}
+        except Exception as e:
+            db.session.rollback()
+            return {'error': str(e)}, 400
