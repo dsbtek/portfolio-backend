@@ -40,3 +40,25 @@ class BlogList(Resource):
             'slug': post.slug,
             'readingTime': post.reading_time
         } for post in posts]
+
+
+@ns.route('/<slug>')
+@ns.param('slug', 'The blog slug')
+class ProjectResource(Resource):
+    @ns.doc('get_project')
+    @ns.response(200, 'Success', blog_model)
+    @ns.response(404, 'Project not found')
+    def get(self, slug):
+        """Get a project by slug"""
+        blog = BlogPost.query.filter_by(slug=slug).first_or_404()
+        return {
+            'title': blog.title,
+            'excerpt': blog.excerpt,
+            'content': blog.content,
+            'imageUrl': blog.image_url,
+            'tags': blog.tags,
+            'author': blog.author,
+            'slug': blog.slug,
+            'date': blog.date.isoformat() if blog.date else None,
+            'readingTime': blog.reading_time
+        }
