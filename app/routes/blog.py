@@ -58,8 +58,7 @@ class BlogList(Resource):
             'author': data.get('author'),
             'tags': data.get('tags'),
             'slug': data.get('slug'),
-            'readingTime': data.reading_time
-
+            'reading_time': data.get('readingTime')  # Fixed: using dict access
         }
 
         try:
@@ -74,7 +73,7 @@ class BlogList(Resource):
 
 @ns.route('/<slug>')
 @ns.param('slug', 'The blog slug')
-class ProjectResource(Resource):
+class BlogResource(Resource):  # Fixed: Changed from ProjectResource to BlogResource
     @ns.doc('get_blog')
     @ns.response(200, 'Success', blog_model)
     @ns.response(404, 'Blog not found')

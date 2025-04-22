@@ -6,7 +6,8 @@ from app import db
 from .docs import experience_ns as ns
 
 # Blueprint for route registration
-bp = Blueprint('experience', __name__, url_prefix='/api/experience')
+# Added trailing slash
+bp = Blueprint('experience', __name__, url_prefix='/api/experience/')
 
 # Models for Swagger documentation
 experience_model = ns.model('Experience', {
@@ -35,7 +36,7 @@ class ExperienceList(Resource):
 
     @ns.doc('create_experience', security='Bearer')
     @ns.expect(experience_model)
-    @ns.response(201, 'Contact created')
+    @ns.response(201, 'Experience created')
     @ns.response(401, 'Unauthorized')
     @jwt_required()
     def post(self):
@@ -52,7 +53,7 @@ class ExperienceList(Resource):
             experience = Experience(**experience_data)
             db.session.add(experience)
             db.session.commit()
-            return {'message': 'An Experience created successfully'}, 201
+            return {'message': 'Experience created successfully'}, 201
         except Exception as e:
             db.session.rollback()
             return {'error': str(e)}, 400

@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from flask_restx import Resource, fields
 from app.models import Contact
@@ -16,82 +16,83 @@ contact_info_model = ns.model('ContactInfo', {
     'twitter': fields.String(description='Twitter profile URL')
 })
 
+contact_message_model = ns.model('ContactMessage', {
+    'name': fields.String(required=True, description='Sender name'),
+    'email': fields.String(required=True, description='Sender email'),
+    'message': fields.String(required=True, description='Message content')
+})
+
 
 @ns.route('/')
 class ContactResource(Resource):
     @ns.doc('get_contact_info')
-    @ns.response(200, 'Success', contact_info_model)
-    @ns.response(404, 'Contact info not found')
+    @ns.response(200, 'Contact information retrieved')
     def get(self):
         """Get contact information"""
         contact = Contact.query.first()
         if not contact:
-            return {'message': 'No contact information available'}, 404
+            return {'error': 'No contact information found'}, 404
+
         return {
             'email': contact.email,
             'linkedin': contact.linkedin,
             'github': contact.github,
             'twitter': contact.twitter
-        }
+        }, 200
 
-    @ns.doc('create_contact', security='Bearer')
+    @ns.doc('update_contact_info', security='Bearer')
     @ns.expect(contact_info_model)
-    @ns.response(201, 'Contact created')
-    @ns.response(401, 'Unauthorized')
+    @ns.response(200, 'Contact updated')
     @jwt_required()
     def post(self):
-        """Create a new contact"""
+        """Update contact information"""
         data = request.get_json()
 
-        contact_data = {
-            'email': data.get('email'),
-            'linkedin': data.get('linkedin'),
-            'github': data.get('github'),
-            'twitter': data.get('twitter')
-        }
+        # Validate required fields
+        if 'email' not in data:
+            return {'error': 'Email is required'}, 400
+
+        contact = Contact.query.first()
 
         try:
-            contact = Contact(**contact_data)
-            db.session.add(contact)
+            if contact:
+                contact.email = data['email']
+                contact.linkedin = data.get('linkedin', contact.linkedin)
+                contact.github = data.get('github', contact.github)
+                contact.twitter = data.get('twitter', contact.twitter)
+                contact.msg = contact.msg  # Preserve existing msg value
+            else:
+                contact = Contact(
+                    email=data['email'],
+                    linkedin=data.get('linkedin'),
+                    github=data.get('github'),
+                    twitter=data.get('twitter'),
+                    msg=''  # Provide a default value
+                )
+                db.session.add(contact)
+
             db.session.commit()
-            return {'message': 'Contact created successfully'}, 201
+            return {'message': 'Contact information updated successfully'}, 200
         except Exception as e:
             db.session.rollback()
             return {'error': str(e)}, 400
 
-    @ns.doc('update_contact', security='Bearer')
-    @ns.expect(contact_info_model)
-    @ns.response(200, 'Contact information updated')
-    @ns.response(404, 'Contact not found')
-    @jwt_required()
-    def put(self, id):
-        """Update a contact"""
-        contact = Contact.query.filter_by(id=id).first_or_404()
+
+@ns.route('/message/')
+class ContactMessageResource(Resource):
+    @ns.doc('submit_contact_message')
+    @ns.expect(contact_message_model)
+    @ns.response(201, 'Message sent')
+    def post(self):
+        """Submit a contact form message"""
         data = request.get_json()
 
-        try:
-            contact.email = data.get('email', contact.email)
-            contact.linkedin = data.get('linkedin', contact.linkedin)
-            contact.github = data.get('github', contact.github)
-            contact.twitter = data.get('twitter', contact.twitter)
+        if not all(key in data for key in ['name', 'email', 'message']):
+            return {'error': 'Missing required fields'}, 400
 
-            db.session.commit()
-            return {'message': 'Contact information updated successfully'}
-        except Exception as e:
-            db.session.rollback()
-            return {'error': str(e)}, 400
-
-    @ns.doc('delete_contact', security='Bearer')
-    @ns.response(200, 'Contact deleted')
-    @ns.response(404, 'Contact not found')
-    @jwt_required()
-    def delete(self, id):
-        """Delete a contact"""
-        service = Contact.query.filter_by(id=id).first_or_404()
         try:
-            db.session.delete(service)
-            db.session.commit()
-            return {'message': 'Contact deleted successfully'}
+            # Here you would typically save the message or send an email
+            # For now, we'll just return success
+            return {'message': 'Message sent successfully'}, 201
         except Exception as e:
-            db.session.rollback()
             return {'error': str(e)}, 400
