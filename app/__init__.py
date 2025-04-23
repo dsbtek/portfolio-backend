@@ -18,7 +18,7 @@ def create_app():
     jwt.init_app(app)
 
     # Add database initialization route
-    @app.route('/init-db')
+    @app.route('/init-db', methods=['POST'])  # Changed from GET to POST
     def init_db():
         db.create_all()
         return "Database tables created!"
