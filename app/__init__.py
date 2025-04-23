@@ -17,6 +17,12 @@ def create_app():
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+    # Add database initialization route
+    @app.route('/init-db')
+    def init_db():
+        db.create_all()
+        return "Database tables created!"
+
     # Register blueprints
     from app.routes import docs, auth, projects, blog, services, contact, experience, about
     app.register_blueprint(docs.bp)
