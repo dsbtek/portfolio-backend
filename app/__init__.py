@@ -18,10 +18,13 @@ def create_app():
     jwt.init_app(app)
 
     # Add database initialization route
-    @app.route('/init-db', methods=['POST'])  # Changed from GET to POST
+    @app.route('/init-db', methods=['POST'])
     def init_db():
-        db.create_all()
-        return "Database tables created!"
+        try:
+            db.create_all()
+            return {"message": "Database tables created successfully!"}, 200
+        except Exception as e:
+            return {"error": str(e)}, 500
 
     # Register blueprints
     from app.routes import docs, auth, projects, blog, services, contact, experience, about
